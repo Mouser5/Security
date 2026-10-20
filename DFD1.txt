@@ -1,0 +1,108 @@
+@startuml dfd_l1
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam ArrowFontSize 11
+skinparam nodesep 25
+skinparam ranksep 60
+hide stereotype
+skinparam rectangle<<ext>> {
+  BackgroundColor #D9D9D9
+  BorderThickness 1.2
+}
+skinparam rectangle<<store>> {
+  BackgroundColor #F2F2F2
+  BorderThickness 1
+}
+skinparam rectangle<<tb>> {
+  BackgroundColor #FFFFFF
+  BorderStyle dashed
+  BorderThickness 2
+  FontStyle bold
+}
+skinparam rectangle<<zone>> {
+  BackgroundColor #FFFFFF
+  BorderStyle dotted
+  BorderThickness 1.2
+  FontStyle italic
+}
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderThickness 1.5
+}
+left to right direction
+title Рисунок 3.2 — DFD уровня 1 с границами доверия
+
+rectangle "R-01\nПосетитель" <<ext>> as R01
+rectangle "R-02\nЗаявитель" <<ext>> as R02
+rectangle "R-03\nЧлен комиссии" <<ext>> as R03
+rectangle "R-04\nСекретарь" <<ext>> as R04
+
+rectangle "TB-1 / TB-4: периметр системы (хостовая среда сервера)" <<tb>> as TB1 {
+  rectangle "TB-5: контейнерная среда" <<tb>> as TB5 {
+    rectangle "Публичная зона" <<zone>> as ZPUB {
+      usecase "P1\nАутентификация и\nразграничение доступа" as P1
+      usecase "P2\nПриём заявок\n(личный кабинет)" as P2
+    }
+    rectangle "TB-2: административная зона" <<tb>> as TB2 {
+      usecase "P3\nЭкспертиза заявок" as P3
+      usecase "P4\nУправление конкурсом\nи ведомость" as P4
+    }
+    rectangle "Служебная зона" <<zone>> as ZSVC {
+      usecase "P5\nСлужебные функции:\nуведомления, аудит,\nмониторинг" as P5
+    }
+    rectangle "TB-3: зона хранения данных" <<tb>> as TB3 {
+      rectangle "<b>D1</b> | Заявки, ПДн, баллы, рейтинги" <<store>> as D1
+      rectangle "<b>D2</b> | Файлы документов и ведомостей" <<store>> as D2
+      rectangle "<b>D3</b> | Учётные записи и роли" <<store>> as D3
+      rectangle "<b>D4</b> | Журнал событий (аудит)" <<store>> as D4
+    }
+  }
+  usecase "P6\nОбслуживание платформы\nи резервное копирование" as P6
+  rectangle "<b>D5</b> | Резервные копии" <<store>> as D5
+}
+
+rectangle "R-05\nТехнический\nспециалист" <<ext>> as R05
+rectangle "R-06\nПочтовый сервис" <<ext>> as R06
+rectangle "R-08\nБухгалтерия (1С)" <<ext>> as R08
+rectangle "R-09\nМониторинг" <<ext>> as R09
+
+R01 --> P1 : I-01
+R01 <--> P2 : I-01
+R02 --> P1 : I-01
+R02 <--> P2 : I-01
+R03 --> P1 : I-02
+R04 --> P1 : I-02
+R03 <--> P3 : I-02
+R04 <--> P4 : I-02
+
+P1 --> P2 : сессия
+P1 --> P3 : I-03
+P1 --> P4 : I-03
+
+P1 <--> D3 : I-04
+P2 <--> D1 : I-04
+P2 <--> D2 : I-04
+P3 <--> D1 : I-04
+P3 <--> D2 : I-04
+P4 <--> D1 : I-04
+P4 <--> D2 : I-04
+P5 <--> D4 : I-04
+
+P2 --> P5 : события
+P3 --> P5 : события
+P4 <--> P5 : события,\nжурнал
+
+P4 ..> R08 : I-05 (через R-04)
+P5 <--> R06 : I-06
+R09 <--> P5 : I-07
+
+R05 <--> P6 : I-08
+P6 --> TB5 : I-08
+R05 <==> TB3 : I-09 (D1, D3, D4)
+D1 --> P6 : I-10
+D2 --> P6 : I-10
+P6 --> D5 : I-10
+@enduml

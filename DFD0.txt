@@ -1,0 +1,48 @@
+@startuml dfd_l0
+skinparam monochrome true
+skinparam defaultTextAlignment center
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam ArrowFontSize 10
+skinparam rectangle {
+  BackgroundColor #E6E6E6
+  BorderThickness 1.2
+}
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderThickness 2.5
+  FontSize 14
+}
+left to right direction
+title Рисунок 3.1 — Контекстная диаграмма (DFD уровня 0)
+
+rectangle "R-01\nНеавторизованный\nпосетитель" as R01
+rectangle "R-02\nЗаявитель (студент)" as R02
+rectangle "R-03\nЧлен комиссии /\nэксперт-верификатор" as R03
+rectangle "R-04\nОтветственный секретарь\n(администратор сервиса)" as R04
+
+usecase "0\nСистема приёма и конкурсного\nрассмотрения заявок\nна матпомощь и ПГАС" as P0
+
+rectangle "R-05\nТехнический специалист\n(администратор сервера и БД)" as R05
+rectangle "R-06\nВнешний почтовый\nсервис" as R06
+rectangle "R-08\nБухгалтерия (1С)" as R08
+rectangle "R-09\nСистема мониторинга\nи сбора журналов" as R09
+
+R01 --> P0 : запрос публичных страниц;\nлогин и пароль
+R01 <-- P0 : регламенты, критерии,\nформа входа
+R02 --> P0 : заявка: ПДн, основания,\nсканы документов; отзыв
+R02 <-- P0 : статус заявки,\nкомментарий комиссии
+R03 --> P0 : баллы, решения,\nпричины отклонения
+R03 <-- P0 : заявки и документы\nна проверку
+R04 --> P0 : сроки приёма, квоты,\nутверждение рейтинга,\nучётные записи
+R04 <-- P0 : рейтинг, отчёты,\nжурнал аудита, файл ведомости
+
+P0 <-- R05 : команды ОС и контейнеров,\nSQL-запросы, запуск копирования
+P0 --> R05 : данные БД, дампы,\nжурналы
+P0 --> R06 : письма-уведомления:\ne-mail, ФИО, статус, причина
+P0 <-- R06 : статусы доставки,\nотказы (bounce)
+P0 ..> R08 : файл ведомости на выплату\n(передаётся через R-04)
+P0 <-- R09 : запросы /health,\n/metrics
+P0 --> R09 : метрики,\nжурналы приложения
+@enduml
